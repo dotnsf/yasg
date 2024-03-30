@@ -4,8 +4,8 @@ require( 'dotenv' ).config();
 
 var ws_server_url = 'WS_SERVER_URL' in process.env ? process.env.WS_SERVER_URL : 'ws://localhost:8000';
 var target_hostname = 'TARGET_HOSTNAME' in process.env ? process.env.TARGET_HOSTNAME : '';
-var target_port = 'TARGET_PORT' in process.env ? parseInt( process.env.TARGET_POSRT ) : 8080;
-_
+var target_port = 'TARGET_PORT' in process.env ? parseInt( process.env.TARGET_PORT ) : 8080;
+
 console.log( {ws_server_url} );
 console.log( {target_hostname} );
 console.log( {target_port} );
@@ -21,6 +21,7 @@ if( target_hostname ){
     wstcp_params.tcpHostname = target_hostname;
 }
 
+console.log( {wstcp_params} );
 var client = wstcpClient( wstcp_params );
 
 /*

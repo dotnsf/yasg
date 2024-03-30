@@ -5,7 +5,7 @@ var port = 'PORT' in process.env ? parseInt( process.env.PORT ) : 8080;
 
 //. HTTP server
 app.use( express.Router() );
-app.get( '/', async function( req, res ){
+app.get( '/', function( req, res ){
   res.contentType( 'application/json; charset=utf-8' );
 
   res.write( JSON.stringify( { status: true, port: port }, null, 2 ) );
