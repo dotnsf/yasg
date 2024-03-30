@@ -3,12 +3,15 @@
 require( 'dotenv' ).config();
 
 var ws_server_port = 'WS_SERVER_PORT' in process.env ? parseInt( process.env.WS_SERVER_PORT ) : 8000;
-var port = 'PORT' in process.env ? parseInt( process.env.PORT ) : 10000;
+var server_port = 'SERVER_PORT' in process.env ? parseInt( process.env.SERVER_PORT ) : 10000;
+
+console.log( {ws_server_port} );
+console.log( {server_port} );
 
 var wstcpServer = require( 'wstcp' ).server;
 var server = wstcpServer( {
     port: ws_server_port,
-    tcpPort: port,
+    tcpPort: server_port,
     remote: true
 });
 
