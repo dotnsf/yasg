@@ -5,6 +5,51 @@
 Open Source versions of Secure Gateway.
 
 
+## Files
+
+- `yasg-server.js`
+  - YASG サーバー
+    - インターネット上に存在している
+    - YASG クライアントに先駆けて起動中
+    - ユーザーからのアクセスを受け付けるサーバー
+
+- `yasg-client.js`
+  - YASG クライアント
+    - イントラネット上に存在している
+    - 起動時に YASG サーバーに WebSocket で接続する
+    - ターゲットサーバー（ターゲットリソース）にアクセスできるサーバー
+
+- `http-test.js`
+  - シンプルな HTTP サーバー
+
+- `http-root-test.js`
+  - root 権限がないと使えない、シンプルな HTTP サーバー
+  - root 権限がないと読み込めないはずの `/root/.bash_history` の中身を表示する
+
+  
+## How to use
+
+- Run YASG server
+  - `$ node yasg-server`
+  - ENV values(default)
+    - `WS_SERVER_PORT`(8000) : Port # of listening WebSocket 
+    - `SERVER_PORT`(10000) : Port # of listening user request.
+
+- Run YASG client
+  - `$ node yasg-client`
+  - ENV values(default)
+    - `WS_SERVER_URL`("ws://localhost:8000") : URL of requesting WebSocket 
+    - `TARGET_HOSTNAME`("" (='localhost)) :  Hostname(IP) of target host
+    - `TARGET_PORT`("8080") :  Port # of target host
+
+- Run HTTP-TEST
+  - `$ node http-test`
+    - `$ PORT=8888 node http-test`
+
+- Run HTTP-ROOT-TEST
+  - `$ sudo node http-root-test`
+    - `$ sudo PORT=1000 node http-root-test`
+
 
 ## Logic
 
