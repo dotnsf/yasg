@@ -18,10 +18,10 @@ var wstcp_params = {
     remote: true
 };
 if( target_hostname ){
-    wstcp_params.tcpHostname = target_hostname;
+    //wstcp_params.tcpHostname = target_hostname; //. 解説のミス
+    wstcp_params.tcpHost = target_hostname;
 }
 
-console.log( {wstcp_params} );
 var client = wstcpClient( wstcp_params );
 
 /*
