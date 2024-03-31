@@ -16,8 +16,6 @@ async function getPort( p ){
 }
 
 require( 'dotenv' ).config();
-//var ws_server_port = 'WS_SERVER_PORT' in process.env ? parseInt( process.env.WS_SERVER_PORT ) : 8000;
-//var server_port = 'SERVER_PORT' in process.env ? parseInt( process.env.SERVER_PORT ) : 10000;
 var start_server_port = 'START_SERVER_PORT' in process.env ? parseInt( process.env.START_SERVER_PORT ) : 10000;
 
 wstcpServers = [];
@@ -27,7 +25,7 @@ app.get( '/add', async function( req, res ){
   res.contentType( 'application/json; charset=utf-8' );
 
   var ws_server_port = await getPort( start_server_port );
-  var tcp_server_port = await getPort( start_server_port + 10000 );
+  var tcp_server_port = ws_server_port + 10000;   //. もう少しいい方法はないものか？
 
   console.log( {ws_server_port} );
   console.log( {tcp_server_port} );
@@ -39,8 +37,8 @@ app.get( '/add', async function( req, res ){
   });
 
   /*
-   * YASG Client からの WebSocket 接続リクエストを ws://localhost:8000 で待つ
-   * ユーザーからのリクエストを 10000 番ポートで待ち受ける
+   * YASG Client からの WebSocket 接続リクエストを ws://localhost:10000 で待つ
+   * ユーザーからのリクエストを 20000 番ポートで待ち受ける
    */
 
   server.on( 'connection', function(){
