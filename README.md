@@ -4,31 +4,32 @@
 
 YASG（Yet Another Secure Gateway - やすじー）
 
-Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGateway?topic=SecureGateway-about-sg&locale=ja).
+Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGateway?topic=SecureGateway-about-sg).
 
 
 ## Files
 
 - `yasg-server.js`
-  - YASG サーバー
-    - インターネット上に存在している
-    - YASG クライアントに先駆けて起動させておく
-    - ユーザーからのアクセスを受け付けるサーバー
+  - YASG server
+    - Supposed to be in internet
+    - Supposed to be started before YASG client
+    - Supposed to be a TCP server which receives user request
 
 - `yasg-client.js`
-  - YASG クライアント
-    - イントラネット上に存在している
-    - 起動時に YASG サーバーに WebSocket で接続する
-    - ターゲットサーバー（ターゲットリソース）にアクセスできるサーバー
+  - YASG client
+    - Supposed to be in intranet or local network
+      - like the ones of [Secure Gateway](https://cloud.ibm.com/docs/SecureGateway?topic=SecureGateway-about-sg) client.
+    - Supposed to be started after YASG server, and connect it via WebSocket
+    - Supposed to connect target server(target resource), like secure DB.
 
 - `http-test.js`
-  - シンプルな HTTP サーバー
-  - yasg-client.js と一緒に使って動作確認するためのもの
+  - Simple HTTP server(on port 8000)
+  - Deserved to use with yasg-client.js
 
 - `http-root-test.js`
-  - root 権限がないと使えない、シンプルな HTTP サーバー
-    - root 権限がないと読み込めないはずの `/root/.bash_history` の中身を表示する
-  - yasg-client.js と一緒に使って動作確認するためのもの
+  - Simple HTTP server(on port 1000) which need root priviledge
+    - Display contents of `/root/.bash_history` which needs root priviledge to read.
+  - Deserved to use with yasg-client.js
 
   
 ## How to Dockerize(still waiting for issue #5)
@@ -118,11 +119,11 @@ Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGatewa
       - connect to MySQL server which runs on (mysql.example.com)
 
 
-## Logic
+## Basic Logic
 
-- WebSocket プロトコルでリモート TCP フォワーディングを利用する
+- To use **TCP remote forwarding** over **WebSocket**
 
-- リモート TCP フォワーディングの実装は [wstcp](https://www.npmjs.com/package/wstcp) 
+- To use [wstcp](https://www.npmjs.com/package/wstcp) as implementation of TCP remote forwarding.
 
 
 ## PostgreSQL on docker
