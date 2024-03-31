@@ -20,37 +20,81 @@ var start_server_port = 'START_SERVER_PORT' in process.env ? parseInt( process.e
 
 wstcpServers = [];
 
+function generateNewServerInstance( ws_server_port, tcp_server_port ){
+  var r = true;
+
+  console.log( {ws_server_port} );
+  console.log( {tcp_server_port} );
+
+  try{
+    var server = wstcpServer({
+      port: ws_server_port,
+      tcpPort: tcp_server_port,
+      remote: true
+    });
+
+    /*
+     * YASG Client からの WebSocket 接続リクエストを ws://localhost:10000 で待つ
+     * ユーザーからのリクエストを 40000 番ポートで待ち受ける
+     */
+
+    server.on( 'connection', function(){
+      console.log( 'server: connection' );
+    });
+    server.on( 'error', function( err ){
+      console.log( `server error: ${err.message}` );
+    });
+
+    wstcpServers.push( server );
+  }catch( e ){
+    console.log( {e} );
+    r = false;
+  }
+
+  return r;
+}
+
 app.use( express.Router() );
+app.get( '/add/:ws_server_port/:tcp_server_port', async function( req, res ){
+  res.contentType( 'application/json; charset=utf-8' );
+
+  var ws_server_port = parseInt( req.params.ws_server_port );
+  var tcp_server_port = parseInt( req.params.tcp_server_port );
+
+  var idx = -1;
+  for( var i = 0; i < wstcpServers.length && idx == -1; i ++ ){
+    var server = wstcpServers[i];
+    if( server.ws_server_port == ws_server_port || server.tcp_server_port == ws_server_port
+        || server.ws_server_port == tcp_server_port || server.tcp_server_port == tcp_server_port ){
+      idx = i;
+    }
+  }
+
+  if( idx > -1 ){
+    res.status( 400 );
+    res.write( JSON.stringify( { status: false, ws_server_port: ws_server_port, tcp_server_port: tcp_server_port }, null, 2 ) );
+    res.end();
+  }else{
+    var r = generateNewServerInstance( ws_server_port, tcp_server_port );
+    if( !r ){
+      res.status( 400 );
+    }
+    res.write( JSON.stringify( { status: r, ws_server_port: ws_server_port, tcp_server_port: tcp_server_port }, null, 2 ) );
+    res.end();
+  }
+});
+
 app.get( '/add', async function( req, res ){
   res.contentType( 'application/json; charset=utf-8' );
 
   var ws_server_port = await getPort( start_server_port );
   var tcp_server_port = ws_server_port + 30000;   //. もう少しいい方法はないものか？
 
-  console.log( {ws_server_port} );
-  console.log( {tcp_server_port} );
-
-  var server = wstcpServer({
-    port: ws_server_port,
-    tcpPort: tcp_server_port,
-    remote: true
-  });
-
-  /*
-   * YASG Client からの WebSocket 接続リクエストを ws://localhost:10000 で待つ
-   * ユーザーからのリクエストを 40000 番ポートで待ち受ける
-   */
-
-  server.on( 'connection', function(){
-    console.log( 'server: connection' );
-  });
-  server.on( 'error', function( err ){
-    console.log( `server error: ${err.message}` );
-  });
-
-  wstcpServers.push( server );
-
-  res.write( JSON.stringify( { ws_server_port: ws_server_port, tcp_server_port: tcp_server_port }, null, 2 ) );
+  var r = generateNewServerInstance( ws_server_port, tcp_server_port );
+  if( !r ){
+    res.status( 400 );
+  }
+  res.write( JSON.stringify( { status: r, ws_server_port: ws_server_port, tcp_server_port: tcp_server_port }, null, 2 ) );
   res.end();
 });
 
@@ -74,6 +118,11 @@ app.get( '/show/:port', async function( req, res ){
     res.write( JSON.stringify( { status: false, port: port, message: 'not found' }, null, 2 ) );
     res.end();
   }
+});
+
+app.get( '/show', function( req, res ){
+  res.write( JSON.stringify( { status: true, wstcpServers: wstcpServers }, null, 2 ) );
+  res.end();
 });
 
 app.get( '/delete/:port', async function( req, res ){

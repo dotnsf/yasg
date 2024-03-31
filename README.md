@@ -45,10 +45,14 @@ Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGatewa
 - Run YASG server
   - `$ node yasg-server`
     - Run HTTP on 8080
+  - `http://(yasg-server):8080/add/10000/10001`
+    - Add new YASG server instance which use port 10000 for websocket, and 10001 for tcp
   - `http://(yasg-server):8080/add`
     - Add new YASG server instance
   - `http://(yasg-server):8080/show/10000`
     - Find YASG server instance which listens on port 10000
+  - `http://(yasg-server):8080/show`
+    - Show all YASG server instances
   - `http://(yasg-server):8080/delete/10000`
     - Delete YASG server instance which listens on port 10000
 
