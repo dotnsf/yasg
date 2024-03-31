@@ -76,26 +76,26 @@ Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGatewa
   - `$ node yasg-server`
     - runs on 8080
   - `$ http://(yasg-server):8080/add`
-    - assign new yasg-server instance #0 on 10000 and 20000
+    - assign new yasg-server instance #0 on 10000 and 40000
   - `$ WS_SERVER_URL=ws://localhost:10000 TARGET_PORT=8000 node yasg-client`
     - run new yasg-client, and connect to yasg-server instance #0 
-  - `$ http://(yasg-server):20000/`
+  - `$ http://(yasg-server):40000/`
     - shows result of `http://(yasg-client):8000/`
 
 - ex. 1
   - `$ http://(yasg-server):8080/add`
-    - assign new yasg-server instance #1 on 10001 and 20001
+    - assign new yasg-server instance #1 on 10001 and 40001
   - `$ WS_SERVER_URL=ws://localhost:10001 TARGET_PORT=3306 TARGET_HOSTNAME=mysql.example.com node yasg-client`
     - run new yasg-client, and connect to yasg-server instance #1 
-  - `$ mysql -h (yasg-server) -u user -p -P 20001`
+  - `$ mysql -h (yasg-server) -u user -p -P 40001`
     - connect to MySQL server which runs on (mysql.example.com)
 
 - ex. 2
   - `$ http://(yasg-server):8080/add`
-    - assign new yasg-server instance #2 on 10002 and 20002
+    - assign new yasg-server instance #2 on 10002 and 40002
   - `$ WS_SERVER_URL=ws://localhost:10002 TARGET_PORT=8080 TARGET_HOSTNAME=w3.example.com node yasg-client`
     - run new yasg-client, and connect to yasg-server instance #2 
-  - `$ http://(yasg-server):20002/`
+  - `$ http://(yasg-server):40002/`
     - shows result of `http://(w3.example.com):8080/`
 
 
@@ -114,7 +114,7 @@ Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGatewa
     - `$ docker build -t yourname/yasg-client -f Dockerfile.client .`
   - Run docker image
     - `$ docker run -d -n yasg-client -p 10000:10000 -e WS_SERVER_URL=ws://localhost:10000 -e TARGET_PORT=3306 -e TARGET_HOSTNAME=mysql.example.com yourname/yasg-client`
-    - `$ mysql -h (yasg-server) -u user -p -P 20000`
+    - `$ mysql -h (yasg-server) -u user -p -P 40000`
       - connect to MySQL server which runs on (mysql.example.com)
 
 
@@ -152,9 +152,9 @@ https://qiita.com/LittleBear-6w6/items/9d780fea1b88340a0840
 https://www.npmjs.com/package/wstcp
 
 
-## LICENSE
+## Licensing
 
-MIT
+Those codes are licensed under MIT.
 
 
 ## Copyright

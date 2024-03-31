@@ -25,7 +25,7 @@ app.get( '/add', async function( req, res ){
   res.contentType( 'application/json; charset=utf-8' );
 
   var ws_server_port = await getPort( start_server_port );
-  var tcp_server_port = ws_server_port + 10000;   //. もう少しいい方法はないものか？
+  var tcp_server_port = ws_server_port + 30000;   //. もう少しいい方法はないものか？
 
   console.log( {ws_server_port} );
   console.log( {tcp_server_port} );
@@ -38,7 +38,7 @@ app.get( '/add', async function( req, res ){
 
   /*
    * YASG Client からの WebSocket 接続リクエストを ws://localhost:10000 で待つ
-   * ユーザーからのリクエストを 20000 番ポートで待ち受ける
+   * ユーザーからのリクエストを 40000 番ポートで待ち受ける
    */
 
   server.on( 'connection', function(){

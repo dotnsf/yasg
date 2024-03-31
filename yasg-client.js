@@ -2,7 +2,7 @@
 //. https://github.com/peterkuma/wstcp?tab=readme-ov-file
 require( 'dotenv' ).config();
 
-var ws_server_url = 'WS_SERVER_URL' in process.env ? process.env.WS_SERVER_URL : 'ws://localhost:8000';
+var ws_server_url = 'WS_SERVER_URL' in process.env ? process.env.WS_SERVER_URL : 'ws://localhost:10000';
 var target_hostname = 'TARGET_HOSTNAME' in process.env ? process.env.TARGET_HOSTNAME : '';
 var target_port = 'TARGET_PORT' in process.env ? parseInt( process.env.TARGET_PORT ) : 8080;
 
