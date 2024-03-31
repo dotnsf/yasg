@@ -1,7 +1,7 @@
 //. http-test.js
 var express = require( 'express' ),
     app = express();
-var port = 'PORT' in process.env ? parseInt( process.env.PORT ) : 8080;
+var port = 'PORT' in process.env ? parseInt( process.env.PORT ) : 8000;
 
 //. HTTP server
 app.use( express.Router() );

@@ -10,6 +10,7 @@
         "express": "^4.19.1",
         "node-ssh-forward": "^0.7.2",
         "pg": "^8.11.3",
+        "plz-port": "^1.0.0",
         "wstcp": "^1.0.6"
     },
     "repository": {},
