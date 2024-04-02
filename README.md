@@ -61,7 +61,7 @@ Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGatewa
   - `$ node yasg-client`
   - ENV values(default)
     - `WS_SERVER_URL`("ws://localhost:10000") : URL of requesting WebSocket 
-    - `TARGET_HOSTNAME`("" (='localhost)) :  Hostname(IP) of target host
+    - `TARGET_HOST`("" (='localhost)) :  Hostname(IP) of target host
     - `TARGET_PORT`("8000") :  Port # of target host
 
 - Run HTTP-TEST
