@@ -3,11 +3,11 @@
 require( 'dotenv' ).config();
 
 var ws_server_url = 'WS_SERVER_URL' in process.env ? process.env.WS_SERVER_URL : 'ws://localhost:10000';
-var target_hostname = 'TARGET_HOSTNAME' in process.env ? process.env.TARGET_HOSTNAME : '';
+var target_host = 'TARGET_HOST' in process.env ? process.env.TARGET_HOST : '';
 var target_port = 'TARGET_PORT' in process.env ? parseInt( process.env.TARGET_PORT ) : 8080;
 
 console.log( {ws_server_url} );
-console.log( {target_hostname} );
+console.log( {target_host} );
 console.log( {target_port} );
 
 var wstcpClient = require( 'wstcp' ).client;
@@ -17,16 +17,15 @@ var wstcp_params = {
     tcpPort: target_port,
     remote: true
 };
-if( target_hostname ){
-    //wstcp_params.tcpHostname = target_hostname; //. 解説のミス
-    wstcp_params.tcpHost = target_hostname;
+if( target_host ){
+    wstcp_params.tcpHostname = target_host;
 }
 
 var client = wstcpClient( wstcp_params );
 
 /*
- * ws://localhost:8000 で待っている WSTCP Server に接続
- * YASG Server からの TCP 接続リクエストを（'xxxxx'の） ~~22~~ 8080 番ポートに送る
+ * ws://localhost:10000 で待っている WSTCP Server に接続
+ * YASG Server からの TCP 接続リクエストを（ tcpHost の） 8080 番ポートに送る
  */
 
 client.on( 'connection', function(){
