@@ -55,6 +55,25 @@ function generateNewServerInstance( ws_server_port, tcp_server_port ){
 }
 
 app.use( express.Router() );
+
+//. #7
+app.get( '/init', async function( req, res ){
+  res.contentType( 'application/json; charset=utf-8' );
+
+  var _ws_server_port = req.query.ws_server_port ? parseInt( req.query.ws_server_port ) : null;
+  var _tcp_server_port = req.query.tcp_server_port ? parseInt( req.query.tcp_server_port ) : null;
+
+  var ws_server_port = _ws_server_port ? _ws_server_port : await getPort( start_server_port );
+  var tcp_server_port = _tcp_server_port ? _tcp_server_port : ws_server_port + 30000;   //. もう少しいい方法はないものか？
+
+  var r = generateNewServerInstance( ws_server_port, tcp_server_port );
+  if( !r ){
+    res.status( 400 );
+  }
+  res.write( JSON.stringify( { status: r, ws_server_port: ws_server_port, tcp_server_port: tcp_server_port }, null, 2 ) );
+  res.end();
+});
+
 app.get( '/add/:ws_server_port/:tcp_server_port', async function( req, res ){
   res.contentType( 'application/json; charset=utf-8' );
 
@@ -147,6 +166,6 @@ app.get( '/delete/:port', async function( req, res ){
   }
 });
 
-var port = 'PORT' in process.env ? parseInt( process.env.PORT ) : 8080;
+var port = 'PORT' in process.env ? parseInt( process.env.PORT ) : 8888;
 app.listen( port );
 console.log( 'Listening port is ' + port );
