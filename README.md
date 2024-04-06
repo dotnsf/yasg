@@ -44,22 +44,23 @@ Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGatewa
 
 - Run YASG server
   - `$ node yasg-server`
-    - Run HTTP on 8080
-  - `http://(yasg-server):8080/add/10000/10001`
+    - Run HTTP on 8888
+  - `http://(yasg-server):8888/add/10000/10001`
     - Add new YASG server instance which use port 10000 for websocket, and 10001 for tcp
-  - `http://(yasg-server):8080/add`
+  - `http://(yasg-server):8888/add`
     - Add new YASG server instance
-  - `http://(yasg-server):8080/show/10000`
+  - `http://(yasg-server):8888/show/10000`
     - Find YASG server instance which listens on port 10000
-  - `http://(yasg-server):8080/show`
+  - `http://(yasg-server):8888/show`
     - Show all YASG server instances
-  - `http://(yasg-server):8080/delete/10000`
+  - `http://(yasg-server):8888/delete/10000`
     - Delete YASG server instance which listens on port 10000
 
 
 - Run YASG client
   - `$ node yasg-client`
   - ENV values(default)
+    - `YASG_SERVER_URL`("http://localhost:8888") : URL base of yasg-server 
     - `WS_SERVER_URL`("ws://localhost:10000") : URL of requesting WebSocket 
     - `TARGET_HOST`("" (='localhost)) :  Hostname(IP) of target host
     - `TARGET_PORT`("8000") :  Port # of target host
@@ -80,7 +81,7 @@ Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGatewa
     - runs on 8000
   - `$ node yasg-server`
     - runs on 8080
-  - `$ http://(yasg-server):8080/add`
+  - `$ http://(yasg-server):8888/add`
     - assign new yasg-server instance #0 on 10000 and 40000
   - `$ WS_SERVER_URL=ws://localhost:10000 TARGET_PORT=8000 node yasg-client`
     - run new yasg-client, and connect to yasg-server instance #0 
@@ -88,7 +89,7 @@ Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGatewa
     - shows result of `http://(yasg-client):8000/`
 
 - ex. 1
-  - `$ http://(yasg-server):8080/add`
+  - `$ http://(yasg-server):8888/add`
     - assign new yasg-server instance #1 on 10001 and 40001
   - `$ WS_SERVER_URL=ws://localhost:10001 TARGET_PORT=3306 TARGET_HOSTNAME=mysql.example.com node yasg-client`
     - run new yasg-client, and connect to yasg-server instance #1 
@@ -96,7 +97,7 @@ Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGatewa
     - connect to MySQL server which runs on (mysql.example.com)
 
 - ex. 2
-  - `$ http://(yasg-server):8080/add`
+  - `$ http://(yasg-server):8888/add`
     - assign new yasg-server instance #2 on 10002 and 40002
   - `$ WS_SERVER_URL=ws://localhost:10002 TARGET_PORT=8080 TARGET_HOSTNAME=w3.example.com node yasg-client`
     - run new yasg-client, and connect to yasg-server instance #2 
@@ -112,7 +113,7 @@ Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGatewa
   - Run docker image
     - `$ docker run -d -n yasg-server -P -e PORT=8080 yourname/yasg-server`
   - Add new instance
-    - `http://(yasg-server):8080/add`
+    - `http://(yasg-server):8888/add`
 
 - Run YASG client on Docker
   - Build docker image
