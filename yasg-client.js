@@ -51,8 +51,10 @@ axios.get( '/init' ).then( function( result ){
 
     var client = wstcpClient( wstcp_params );
       
-    var target_url = tmp[0] + ':' + tmp[1] + ':' + tcp_server_port;
-    console.log( 'target_url = ' + target_url );
+    tmp = tmp[1].split( '/' );
+    var target_url = tmp[2] + ':' + tcp_server_port;
+
+    console.log( 'target = ' + target_url );
 
     /*
      * ws://localhost:10000 で待っている WSTCP Server に接続
