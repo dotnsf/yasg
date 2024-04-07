@@ -80,16 +80,18 @@ Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGatewa
   - `$ node http-test`
     - runs on 8000
   - `$ node yasg-server`
-    - runs on 8080
-  - `$ http://(yasg-server):8888/add`
+    - start yasg-server on 8888
+  - `http://(yasg-server):8888/add`
     - assign new yasg-server instance #0 on 10000 and 40000
   - `$ WS_SERVER_URL=ws://localhost:10000 TARGET_PORT=8000 node yasg-client`
     - run new yasg-client, and connect to yasg-server instance #0 
-  - `$ http://(yasg-server):40000/`
+  - `http://(yasg-server):40000/`
     - shows result of `http://(yasg-client):8000/`
 
 - ex. 1
-  - `$ http://(yasg-server):8888/add`
+  - `$ node yasg-server`
+    - start yasg-server on 8888
+  - `http://(yasg-server):8888/add`
     - assign new yasg-server instance #1 on 10001 and 40001
   - `$ WS_SERVER_URL=ws://localhost:10001 TARGET_PORT=3306 TARGET_HOSTNAME=mysql.example.com node yasg-client`
     - run new yasg-client, and connect to yasg-server instance #1 
@@ -97,11 +99,22 @@ Open Source versions of [Secure Gateway](https://cloud.ibm.com/docs/SecureGatewa
     - connect to MySQL server which runs on (mysql.example.com)
 
 - ex. 2
-  - `$ http://(yasg-server):8888/add`
+  - `$ node yasg-server`
+    - start yasg-server on 8888
+  - `http://(yasg-server):8888/add`
     - assign new yasg-server instance #2 on 10002 and 40002
   - `$ WS_SERVER_URL=ws://localhost:10002 TARGET_PORT=8080 TARGET_HOSTNAME=w3.example.com node yasg-client`
     - run new yasg-client, and connect to yasg-server instance #2 
-  - `$ http://(yasg-server):40002/`
+  - `http://(yasg-server):40002/`
+    - shows result of `http://(w3.example.com):8080/`
+
+- ex. 3 (**main example**)
+  - `$ node yasg-server`
+    - start yasg-server on 8888
+  - `$ YASG_SERVER_URL=http://localhost:8888 TARGET_PORT=8080 TARGET_HOSTNAME=w3.example.com node yasg-client`
+    - run new yasg-client, and connect to yasg-server instance #2 
+    - this returns newly assigned port(40003, for example)
+  - `http://(yasg-server):40003/`
     - shows result of `http://(w3.example.com):8080/`
 
 
