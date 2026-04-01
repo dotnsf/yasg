@@ -1,0 +1,17 @@
+{
+  "tcp": {
+    "host": "0.0.0.0",
+    "port": 8080
+  },
+  "websocket": {
+    "port": 8081,
+    "path": "/gateway"
+  },
+  "connection": {
+    "timeout": 30000,
+    "maxConnections": 100
+  },
+  "logging": {
+    "level": "info"
+  }
+}

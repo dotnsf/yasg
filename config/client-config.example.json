@@ -1,0 +1,19 @@
+{
+  "server": {
+    "url": "ws://localhost:8081/gateway",
+    "reconnect": true,
+    "reconnectInterval": 5000,
+    "maxReconnectAttempts": 10
+  },
+  "target": {
+    "host": "localhost",
+    "port": 3306
+  },
+  "connection": {
+    "timeout": 30000,
+    "poolSize": 10
+  },
+  "logging": {
+    "level": "info"
+  }
+}
