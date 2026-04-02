@@ -149,11 +149,8 @@ class GatewayServer {
       // Set up data forwarding
       this.dataForwarder.forwardTcpToWebSocket(socket, connectionId);
 
-      // Send connect request to client
-      const message = createConnectRequest(connectionId, this.config.target || {
-        host: 'localhost',
-        port: 3306
-      });
+      // Send connect request to client (without target info - client will use its own config)
+      const message = createConnectRequest(connectionId, undefined);
       this.wsServer.sendMessage(message);
 
       this.logger.info('TCP connection established, waiting for client', { 
