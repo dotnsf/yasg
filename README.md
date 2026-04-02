@@ -4,7 +4,7 @@ A lightweight, WebSocket-based TCP tunneling solution that enables secure access
 
 ## 🎯 Overview
 
-YASG is a Node.js implementation inspired by IBM Cloud Secure Gateway. It allows you to expose on-premise TCP services (databases, SSH, custom protocols) to the internet through a secure WebSocket tunnel, eliminating the need to open inbound firewall ports.
+YASG is a pure JavaScript (Node.js) implementation inspired by IBM Cloud Secure Gateway. It allows you to expose on-premise TCP services (databases, SSH, custom protocols) to the internet through a secure WebSocket tunnel, eliminating the need to open inbound firewall ports.
 
 ### How It Works
 
@@ -25,7 +25,7 @@ Internet Client → Gateway Server (Cloud) ←WebSocket→ Gateway Client (On-Pr
 - ✅ Connection lifecycle management
 - ✅ Automatic reconnection (client-side)
 - ✅ Support for any TCP protocol
-- ✅ TypeScript implementation
+- ✅ Pure JavaScript implementation (no build step!)
 - ✅ Comprehensive logging
 
 ### Future Enhancements
@@ -52,10 +52,9 @@ cd yasg
 
 # Install dependencies
 npm install
-
-# Build the project
-npm run build
 ```
+
+**No build step required!** YASG is written in pure JavaScript.
 
 ### Running the Gateway Server (Cloud-Side)
 
@@ -104,32 +103,28 @@ ssh -p 8080 user@<gateway-server-ip>
 yasg/
 ├── src/
 │   ├── server/              # Gateway server components
-│   │   ├── index.ts         # Server entry point
-│   │   ├── TcpListener.ts   # TCP server
-│   │   ├── WebSocketServer.ts
-│   │   ├── ConnectionManager.ts
-│   │   └── DataForwarder.ts
+│   │   ├── index.js         # Server entry point
+│   │   ├── TcpListener.js   # TCP server
+│   │   ├── WebSocketServer.js
+│   │   ├── ConnectionManager.js
+│   │   └── DataForwarder.js
 │   ├── client/              # Gateway client components
-│   │   ├── index.ts         # Client entry point
-│   │   ├── WebSocketClient.ts
-│   │   ├── TcpConnector.ts
-│   │   ├── ConnectionPool.ts
-│   │   └── DataForwarder.ts
-│   ├── shared/              # Shared code
-│   │   ├── types.ts         # Type definitions
-│   │   ├── protocol.ts      # Protocol implementation
-│   │   └── utils.ts         # Utilities
-│   └── config/              # Configuration
-│       ├── server-config.ts
-│       └── client-config.ts
+│   │   ├── index.js         # Client entry point
+│   │   ├── WebSocketClient.js
+│   │   ├── TcpConnector.js
+│   │   ├── ConnectionPool.js
+│   │   └── DataForwarder.js
+│   └── shared/              # Shared code
+│       ├── protocol.js      # Protocol implementation
+│       └── utils.js         # Utilities
+├── config/                  # Configuration files
 ├── examples/                # Usage examples
-├── tests/                   # Test files
-├── docs/                    # Additional documentation
 ├── package.json
-├── tsconfig.json
 ├── README.md
-├── TECHNICAL_SPEC.md        # Technical specification
-├── ARCHITECTURE.md          # Architecture details
+├── QUICKSTART.md           # Quick start guide
+├── INSTALLATION.md         # Installation guide
+├── TECHNICAL_SPEC.md       # Technical specification
+├── ARCHITECTURE.md         # Architecture details
 └── IMPLEMENTATION_ROADMAP.md # Implementation guide
 ```
 
@@ -191,19 +186,17 @@ Create `config/client-config.json`:
 - [Architecture](ARCHITECTURE.md) - System architecture and diagrams
 - [Implementation Roadmap](IMPLEMENTATION_ROADMAP.md) - Development guide
 - [Quick Start Guide](QUICKSTART.md) - Getting started quickly
-- [Usage Guide](USAGE_GUIDE.md) - Detailed usage instructions
+- [Installation Guide](INSTALLATION.md) - Detailed installation instructions
 
 ## 🧪 Testing
 
 ```bash
-# Run all tests
+# Run tests (when available)
 npm test
 
-# Run tests with coverage
-npm run test:coverage
-
-# Run specific test file
-npm test -- server.test.ts
+# Run in development mode with auto-reload
+npm run dev:server  # For server
+npm run dev:client  # For client
 ```
 
 ## 🔧 Development
@@ -216,14 +209,8 @@ npm install
 npm run dev:server  # For server
 npm run dev:client  # For client
 
-# Build TypeScript
-npm run build
-
 # Lint code
 npm run lint
-
-# Format code
-npm run format
 ```
 
 ## 📊 Use Cases
@@ -345,7 +332,7 @@ Contributions are welcome! Please:
 ## 🙏 Acknowledgments
 
 - Inspired by IBM Cloud Secure Gateway
-- Built with Node.js and TypeScript
+- Built with Node.js and pure JavaScript
 - Uses the excellent [ws](https://github.com/websockets/ws) library
 
 ## 📞 Support
@@ -360,6 +347,7 @@ Contributions are welcome! Please:
 - ✅ Basic WebSocket tunneling
 - ✅ TCP connection forwarding
 - ✅ Automatic reconnection
+- ✅ Pure JavaScript implementation
 
 ### Version 2.0 (Planned)
 - 🔜 Authentication system
@@ -377,8 +365,8 @@ Contributions are welcome! Please:
 
 - [WebSocket Protocol (RFC 6455)](https://tools.ietf.org/html/rfc6455)
 - [Node.js Net Module](https://nodejs.org/api/net.html)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+- [Node.js Documentation](https://nodejs.org/docs/)
 
 ---
 
-**Made with ❤️ using Node.js and TypeScript**
+**Made with ❤️ using Node.js and JavaScript**

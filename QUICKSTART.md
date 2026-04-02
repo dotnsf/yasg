@@ -15,11 +15,7 @@ cd yasg
 npm install
 ```
 
-## Build
-
-```bash
-npm run build
-```
+That's it! No build step required - YASG is written in pure JavaScript.
 
 ## Running the Gateway Server (Cloud-Side)
 
@@ -184,13 +180,13 @@ npm run dev:client
 - Check host and port in client config
 - Test local connectivity: `telnet localhost 3306`
 
-### TypeScript Errors
+### Module Not Found
 
-**Problem:** Cannot find module 'net' or 'ws'
+**Problem:** `Cannot find module 'ws'`
 
 **Solution:**
 ```bash
-npm install --save-dev @types/node @types/ws
+npm install
 ```
 
 ## Next Steps
