@@ -1,8 +1,10 @@
+const fs = require('fs');
+const path = require('path');
 const { MessageType } = require('../shared/protocol');
-const { ConsoleLogger } = require('../shared/utils');
-const { 
-  createConnectSuccess, 
-  createConnectError, 
+const { ConsoleLogger, parseArgs } = require('../shared/utils');
+const {
+  createConnectSuccess,
+  createConnectError,
   createDisconnect,
   createDisconnectAck
 } = require('../shared/protocol');
@@ -261,10 +263,42 @@ const defaultConfig = {
 };
 
 /**
+ * Load configuration from file
+ */
+function loadConfig(configPath) {
+  try {
+    const absolutePath = path.resolve(configPath);
+    const configData = fs.readFileSync(absolutePath, 'utf8');
+    const config = JSON.parse(configData);
+    console.log(`Configuration loaded from: ${absolutePath}`);
+    return config;
+  } catch (error) {
+    console.error(`Failed to load configuration from ${configPath}:`, error.message);
+    process.exit(1);
+  }
+}
+
+/**
  * Main entry point
  */
 async function main() {
-  const client = new GatewayClient(defaultConfig);
+  // Parse command line arguments
+  const args = parseArgs(process.argv.slice(2));
+  
+  // Load configuration
+  let config = defaultConfig;
+  if (args.config) {
+    const loadedConfig = loadConfig(args.config);
+    // Merge loaded config with default config
+    config = {
+      server: { ...defaultConfig.server, ...loadedConfig.server },
+      target: { ...defaultConfig.target, ...loadedConfig.target },
+      connection: { ...defaultConfig.connection, ...loadedConfig.connection },
+      logging: { ...defaultConfig.logging, ...loadedConfig.logging }
+    };
+  }
+
+  const client = new GatewayClient(config);
 
   // Handle graceful shutdown
   process.on('SIGINT', async () => {

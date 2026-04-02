@@ -54,6 +54,12 @@ Create `config/server-config.json`:
 }
 ```
 
+Then start with the config file:
+
+```bash
+node src/server/index.js --config config/server-config.json
+```
+
 ## Running the Gateway Client (On-Premise-Side)
 
 The gateway client should run on your on-premise network where the target service is accessible.
@@ -87,6 +93,12 @@ Create `config/client-config.json`:
     "level": "info"
   }
 }
+```
+
+Then start with the config file:
+
+```bash
+node src/client/index.js --config config/client-config.json
 ```
 
 ## Testing the Connection
