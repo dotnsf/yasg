@@ -1,4 +1,4 @@
-# YASG - Yet Another Secure Gateway
+# 安爺(YASG - Yet Another Secure Gateway)
 
 A lightweight, WebSocket-based TCP tunneling solution that enables secure access to on-premise services from the internet without requiring inbound firewall rules.
 
