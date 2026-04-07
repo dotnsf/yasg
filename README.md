@@ -59,10 +59,19 @@ npm install
 ### Running the Gateway Server (Cloud-Side)
 
 ```bash
-# Start the server
+# Start the server with default configuration
 npm run start:server
 
-# Or with custom configuration
+# With custom configuration file
+npm run start:server -- --config ./config/server-config.json
+
+# With environment variables
+export YASG_TCP_PORT=9090
+export YASG_WS_PORT=9091
+npm run start:server
+
+# Combining config file and environment variables (env takes precedence)
+export YASG_LOG_LEVEL=debug
 npm run start:server -- --config ./config/server-config.json
 ```
 
@@ -73,16 +82,31 @@ The server will start:
 ### Running the Gateway Client (On-Premise-Side)
 
 ```bash
-# Start the client
+# Start the client with default configuration
 npm run start:client
 
-# Or with custom configuration
+# With custom configuration file
+npm run start:client -- --config ./config/client-config.json
+
+# With environment variables (useful for Docker/Kubernetes)
+export YASG_SERVER_URL=ws://gateway.example.com:8081/gateway
+export YASG_TARGET_HOST=localhost
+export YASG_TARGET_PORT=22
+npm run start:client
+
+# Combining config file and environment variables (env takes precedence)
+export YASG_TARGET_PORT=3306
+export YASG_LOG_LEVEL=info
 npm run start:client -- --config ./config/client-config.json
 ```
 
 The client will:
 - Connect to the gateway server via WebSocket
 - Forward connections to the configured target service
+
+**Configuration Priority:** Environment Variables > Config File > Default Values
+
+For a complete list of environment variables, see [ENVIRONMENT_VARIABLES.md](ENVIRONMENT_VARIABLES.md).
 
 ### Testing the Connection
 
@@ -123,12 +147,17 @@ yasg/
 ├── README.md
 ├── QUICKSTART.md           # Quick start guide
 ├── INSTALLATION.md         # Installation guide
+├── ENVIRONMENT_VARIABLES.md # Environment variables guide
 ├── TECHNICAL_SPEC.md       # Technical specification
 ├── ARCHITECTURE.md         # Architecture details
 └── IMPLEMENTATION_ROADMAP.md # Implementation guide
 ```
 
 ## ⚙️ Configuration
+
+YASG supports configuration through both configuration files and environment variables. Environment variables take precedence over configuration files.
+
+For detailed information about environment variables, see [ENVIRONMENT_VARIABLES.md](ENVIRONMENT_VARIABLES.md).
 
 ### Server Configuration
 

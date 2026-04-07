@@ -279,23 +279,114 @@ function loadConfig(configPath) {
 }
 
 /**
+ * Load configuration from environment variables
+ * Environment variables take precedence over config file
+ */
+function loadConfigFromEnv() {
+  const envConfig = {};
+
+  // Server configuration
+  if (process.env.YASG_SERVER_URL) {
+    envConfig.server = envConfig.server || {};
+    envConfig.server.url = process.env.YASG_SERVER_URL;
+  }
+  if (process.env.YASG_SERVER_RECONNECT) {
+    envConfig.server = envConfig.server || {};
+    envConfig.server.reconnect = process.env.YASG_SERVER_RECONNECT === 'true';
+  }
+  if (process.env.YASG_SERVER_RECONNECT_INTERVAL) {
+    envConfig.server = envConfig.server || {};
+    envConfig.server.reconnectInterval = parseInt(process.env.YASG_SERVER_RECONNECT_INTERVAL, 10);
+  }
+  if (process.env.YASG_SERVER_MAX_RECONNECT_ATTEMPTS) {
+    envConfig.server = envConfig.server || {};
+    envConfig.server.maxReconnectAttempts = parseInt(process.env.YASG_SERVER_MAX_RECONNECT_ATTEMPTS, 10);
+  }
+
+  // Target configuration
+  if (process.env.YASG_TARGET_HOST) {
+    envConfig.target = envConfig.target || {};
+    envConfig.target.host = process.env.YASG_TARGET_HOST;
+  }
+  if (process.env.YASG_TARGET_PORT) {
+    envConfig.target = envConfig.target || {};
+    envConfig.target.port = parseInt(process.env.YASG_TARGET_PORT, 10);
+  }
+
+  // Connection configuration
+  if (process.env.YASG_CONN_TIMEOUT) {
+    envConfig.connection = envConfig.connection || {};
+    envConfig.connection.timeout = parseInt(process.env.YASG_CONN_TIMEOUT, 10);
+  }
+  if (process.env.YASG_CONN_POOL_SIZE) {
+    envConfig.connection = envConfig.connection || {};
+    envConfig.connection.poolSize = parseInt(process.env.YASG_CONN_POOL_SIZE, 10);
+  }
+
+  // Logging configuration
+  if (process.env.YASG_LOG_LEVEL) {
+    envConfig.logging = envConfig.logging || {};
+    envConfig.logging.level = process.env.YASG_LOG_LEVEL;
+  }
+
+  return envConfig;
+}
+
+/**
+ * Merge configurations with priority: env > file > default
+ */
+function mergeConfigs(defaultConfig, fileConfig, envConfig) {
+  return {
+    server: {
+      ...defaultConfig.server,
+      ...(fileConfig.server || {}),
+      ...(envConfig.server || {})
+    },
+    target: {
+      ...defaultConfig.target,
+      ...(fileConfig.target || {}),
+      ...(envConfig.target || {})
+    },
+    connection: {
+      ...defaultConfig.connection,
+      ...(fileConfig.connection || {}),
+      ...(envConfig.connection || {})
+    },
+    logging: {
+      ...defaultConfig.logging,
+      ...(fileConfig.logging || {}),
+      ...(envConfig.logging || {})
+    }
+  };
+}
+
+/**
  * Main entry point
  */
 async function main() {
   // Parse command line arguments
   const args = parseArgs(process.argv.slice(2));
   
-  // Load configuration
-  let config = defaultConfig;
+  // Load configuration with priority: env > file > default
+  let fileConfig = {};
   if (args.config) {
-    const loadedConfig = loadConfig(args.config);
-    // Merge loaded config with default config
-    config = {
-      server: { ...defaultConfig.server, ...loadedConfig.server },
-      target: { ...defaultConfig.target, ...loadedConfig.target },
-      connection: { ...defaultConfig.connection, ...loadedConfig.connection },
-      logging: { ...defaultConfig.logging, ...loadedConfig.logging }
-    };
+    fileConfig = loadConfig(args.config);
+  }
+  
+  // Load environment variables
+  const envConfig = loadConfigFromEnv();
+  
+  // Merge configurations (env takes precedence over file, file over default)
+  const config = mergeConfigs(defaultConfig, fileConfig, envConfig);
+  
+  // Log configuration sources
+  console.log('Configuration loaded from:');
+  console.log('  - Default values');
+  if (args.config) {
+    console.log(`  - Config file: ${args.config}`);
+  }
+  if (Object.keys(envConfig).length > 0) {
+    console.log('  - Environment variables (highest priority)');
   }
 
   const client = new GatewayClient(config);

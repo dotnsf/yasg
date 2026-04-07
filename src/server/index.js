@@ -315,23 +315,106 @@ function loadConfig(configPath) {
 }
 
 /**
+ * Load configuration from environment variables
+ * Environment variables take precedence over config file
+ */
+function loadConfigFromEnv() {
+  const envConfig = {};
+
+  // TCP configuration
+  if (process.env.YASG_TCP_HOST) {
+    envConfig.tcp = envConfig.tcp || {};
+    envConfig.tcp.host = process.env.YASG_TCP_HOST;
+  }
+  if (process.env.YASG_TCP_PORT) {
+    envConfig.tcp = envConfig.tcp || {};
+    envConfig.tcp.port = parseInt(process.env.YASG_TCP_PORT, 10);
+  }
+
+  // WebSocket configuration
+  if (process.env.YASG_WS_PORT) {
+    envConfig.websocket = envConfig.websocket || {};
+    envConfig.websocket.port = parseInt(process.env.YASG_WS_PORT, 10);
+  }
+  if (process.env.YASG_WS_PATH) {
+    envConfig.websocket = envConfig.websocket || {};
+    envConfig.websocket.path = process.env.YASG_WS_PATH;
+  }
+
+  // Connection configuration
+  if (process.env.YASG_CONN_TIMEOUT) {
+    envConfig.connection = envConfig.connection || {};
+    envConfig.connection.timeout = parseInt(process.env.YASG_CONN_TIMEOUT, 10);
+  }
+  if (process.env.YASG_CONN_MAX) {
+    envConfig.connection = envConfig.connection || {};
+    envConfig.connection.maxConnections = parseInt(process.env.YASG_CONN_MAX, 10);
+  }
+
+  // Logging configuration
+  if (process.env.YASG_LOG_LEVEL) {
+    envConfig.logging = envConfig.logging || {};
+    envConfig.logging.level = process.env.YASG_LOG_LEVEL;
+  }
+
+  return envConfig;
+}
+
+/**
+ * Merge configurations with priority: env > file > default
+ */
+function mergeConfigs(defaultConfig, fileConfig, envConfig) {
+  return {
+    tcp: {
+      ...defaultConfig.tcp,
+      ...(fileConfig.tcp || {}),
+      ...(envConfig.tcp || {})
+    },
+    websocket: {
+      ...defaultConfig.websocket,
+      ...(fileConfig.websocket || {}),
+      ...(envConfig.websocket || {})
+    },
+    connection: {
+      ...defaultConfig.connection,
+      ...(fileConfig.connection || {}),
+      ...(envConfig.connection || {})
+    },
+    logging: {
+      ...defaultConfig.logging,
+      ...(fileConfig.logging || {}),
+      ...(envConfig.logging || {})
+    }
+  };
+}
+
+/**
  * Main entry point
  */
 async function main() {
   // Parse command line arguments
   const args = parseArgs(process.argv.slice(2));
   
-  // Load configuration
-  let config = defaultConfig;
+  // Load configuration with priority: env > file > default
+  let fileConfig = {};
   if (args.config) {
-    const loadedConfig = loadConfig(args.config);
-    // Merge loaded config with default config
-    config = {
-      tcp: { ...defaultConfig.tcp, ...loadedConfig.tcp },
-      websocket: { ...defaultConfig.websocket, ...loadedConfig.websocket },
-      connection: { ...defaultConfig.connection, ...loadedConfig.connection },
-      logging: { ...defaultConfig.logging, ...loadedConfig.logging }
-    };
+    fileConfig = loadConfig(args.config);
+  }
+  
+  // Load environment variables
+  const envConfig = loadConfigFromEnv();
+  
+  // Merge configurations (env takes precedence over file, file over default)
+  const config = mergeConfigs(defaultConfig, fileConfig, envConfig);
+  
+  // Log configuration sources
+  console.log('Configuration loaded from:');
+  console.log('  - Default values');
+  if (args.config) {
+    console.log(`  - Config file: ${args.config}`);
+  }
+  if (Object.keys(envConfig).length > 0) {
+    console.log('  - Environment variables (highest priority)');
   }
 
   const server = new GatewayServer(config);
