@@ -1,7 +1,7 @@
 {
   "name": "yasg",
   "version": "1.0.0",
-  "description": "Yet Another Secure Gateway - WebSocket-based TCP tunneling solution",
+  "description": "YASG(Yet Another Secure Gateway) - WebSocket-based TCP tunneling solution",
   "main": "src/server/index.js",
   "type": "commonjs",
   "scripts": {
@@ -12,6 +12,11 @@
     "test": "echo \"No tests yet\"",
     "lint": "eslint src/**/*.js"
   },
+  "pkg": {
+    "assets": [
+      "assets/**"
+    ]
+  },
   "keywords": [
     "gateway",
     "tunnel",
@@ -20,7 +25,7 @@
     "secure-gateway",
     "reverse-proxy"
   ],
-  "author": "",
+  "author": "dotnsf@gmail.com",
   "license": "MIT",
   "dependencies": {
     "ws": "^8.16.0"
