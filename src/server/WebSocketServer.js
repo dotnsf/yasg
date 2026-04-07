@@ -14,6 +14,7 @@ class WebSocketServer {
     this.onMessageCallback = null;
     this.onClientConnectedCallback = null;
     this.onClientDisconnectedCallback = null;
+    this.pingInterval = null;
   }
 
   /**
@@ -54,6 +55,12 @@ class WebSocketServer {
    */
   stop() {
     return new Promise((resolve) => {
+      // Stop ping interval
+      if (this.pingInterval) {
+        clearInterval(this.pingInterval);
+        this.pingInterval = null;
+      }
+
       if (this.client) {
         this.client.close();
         this.client = null;
@@ -139,6 +146,13 @@ class WebSocketServer {
     ws.on('close', () => {
       this.logger.info('Gateway client disconnected');
       this.client = null;
+      
+      // Stop ping interval
+      if (this.pingInterval) {
+        clearInterval(this.pingInterval);
+        this.pingInterval = null;
+      }
+      
       if (this.onClientDisconnectedCallback) {
         this.onClientDisconnectedCallback();
       }
@@ -149,10 +163,36 @@ class WebSocketServer {
       this.logger.error('WebSocket client error', { error: error.message });
     });
 
+    // Handle pong responses
+    ws.on('pong', () => {
+      this.logger.debug('Received pong from client');
+    });
+
+    // Start ping interval (30 seconds)
+    this.startPingInterval();
+
     // Notify connection
     if (this.onClientConnectedCallback) {
       this.onClientConnectedCallback();
     }
+  }
+
+  /**
+   * Start ping interval to keep connection alive
+   */
+  startPingInterval() {
+    // Clear existing interval if any
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+    }
+
+    // Send ping every 30 seconds
+    this.pingInterval = setInterval(() => {
+      if (this.client && this.client.readyState === WebSocket.OPEN) {
+        this.logger.debug('Sending ping to client');
+        this.client.ping();
+      }
+    }, 30000);
   }
 
   /**

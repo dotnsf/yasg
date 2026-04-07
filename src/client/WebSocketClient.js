@@ -148,6 +148,17 @@ class WebSocketClient {
         this.logger.error('WebSocket error', { error: error.message });
         reject(error);
       });
+
+      // Handle ping from server
+      this.ws.on('ping', () => {
+        this.logger.debug('Received ping from server');
+        // WebSocket automatically sends pong response
+      });
+
+      // Handle pong responses
+      this.ws.on('pong', () => {
+        this.logger.debug('Received pong from server');
+      });
     });
   }
 

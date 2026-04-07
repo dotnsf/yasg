@@ -254,7 +254,7 @@ const defaultConfig = {
     port: 3306
   },
   connection: {
-    timeout: 30000,
+    timeout: 600000, // 10 minutes for long-lived connections like SSH
     poolSize: 10
   },
   logging: {

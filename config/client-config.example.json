@@ -10,7 +10,7 @@
     "port": 3306
   },
   "connection": {
-    "timeout": 30000,
+    "timeout": 600000,
     "poolSize": 10
   },
   "logging": {

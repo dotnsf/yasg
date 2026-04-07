@@ -8,7 +8,7 @@
     "path": "/gateway"
   },
   "connection": {
-    "timeout": 30000,
+    "timeout": 600000,
     "maxConnections": 100
   },
   "logging": {

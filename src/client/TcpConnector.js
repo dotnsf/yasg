@@ -26,17 +26,17 @@ class TcpConnector {
 
       // Connect to target
       socket.connect(target.port, target.host, () => {
-        this.logger.info('Connected to target service', { 
-          host: target.host, 
-          port: target.port 
+        this.logger.info('Connected to target service', {
+          host: target.host,
+          port: target.port
         });
         
         // Clear timeout after successful connection
         socket.setTimeout(0);
         
-        // Set socket options
-        socket.setKeepAlive(true, 60000);
-        socket.setNoDelay(true);
+        // Set socket options for long-lived connections
+        socket.setKeepAlive(true, 10000); // Enable keep-alive with 10 second initial delay
+        socket.setNoDelay(true); // Disable Nagle's algorithm for lower latency
         
         resolve(socket);
       });

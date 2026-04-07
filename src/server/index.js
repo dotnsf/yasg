@@ -142,6 +142,11 @@ class GatewayServer {
     }
 
     try {
+      // Configure TCP socket for long-lived connections
+      socket.setKeepAlive(true, 10000); // Enable keep-alive with 10 second initial delay
+      socket.setTimeout(0); // Disable timeout (no automatic timeout)
+      socket.setNoDelay(true); // Disable Nagle's algorithm for lower latency
+
       // Add connection to manager
       this.connectionManager.addConnection(connectionId, socket);
       this.connectionManager.updateState(connectionId, ConnectionState.CONNECTING);
@@ -153,8 +158,8 @@ class GatewayServer {
       const message = createConnectRequest(connectionId, undefined);
       this.wsServer.sendMessage(message);
 
-      this.logger.info('TCP connection established, waiting for client', { 
-        connectionId 
+      this.logger.info('TCP connection established, waiting for client', {
+        connectionId
       });
 
       // Handle TCP socket close
@@ -167,6 +172,11 @@ class GatewayServer {
         
         // Remove connection
         this.connectionManager.removeConnection(connectionId);
+      });
+
+      // Handle TCP socket errors
+      socket.on('error', (error) => {
+        this.logger.error('TCP socket error', { connectionId, error: error.message });
       });
 
     } catch (error) {
@@ -280,7 +290,7 @@ const defaultConfig = {
     path: '/gateway'
   },
   connection: {
-    timeout: 30000,
+    timeout: 600000, // 10 minutes for long-lived connections like SSH
     maxConnections: 100
   },
   logging: {
