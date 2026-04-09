@@ -252,7 +252,9 @@ const defaultConfig = {
   },
   target: {
     host: 'localhost',
-    port: 3306
+    port: 3306,
+    tls: false,
+    rejectUnauthorized: true
   },
   connection: {
     timeout: 600000, // 10 minutes for long-lived connections like SSH
@@ -315,6 +317,14 @@ function loadConfigFromEnv() {
   if (process.env.YASG_TARGET_PORT) {
     envConfig.target = envConfig.target || {};
     envConfig.target.port = parseInt(process.env.YASG_TARGET_PORT, 10);
+  }
+  if (process.env.YASG_TARGET_TLS) {
+    envConfig.target = envConfig.target || {};
+    envConfig.target.tls = process.env.YASG_TARGET_TLS === 'true';
+  }
+  if (process.env.YASG_TARGET_REJECT_UNAUTHORIZED) {
+    envConfig.target = envConfig.target || {};
+    envConfig.target.rejectUnauthorized = process.env.YASG_TARGET_REJECT_UNAUTHORIZED !== 'false';
   }
 
   // Connection configuration

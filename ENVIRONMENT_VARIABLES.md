@@ -41,6 +41,8 @@ The configuration is loaded in the following order (highest priority first):
 ### Target Configuration
 - `YASG_TARGET_HOST` - Target service host (default: `localhost`)
 - `YASG_TARGET_PORT` - Target service port (default: `3306`)
+- `YASG_TARGET_TLS` - Enable TLS/SSL for target connection: `true` or `false` (default: `false`)
+- `YASG_TARGET_REJECT_UNAUTHORIZED` - Reject unauthorized TLS certificates: `true` or `false` (default: `true`)
 
 ### Connection Configuration
 - `YASG_CONN_TIMEOUT` - Connection timeout in milliseconds (default: `600000` = 10 minutes)
@@ -82,7 +84,7 @@ npm run start:server
 ### Client with Environment Variables
 
 ```bash
-# Linux/macOS
+# Linux/macOS - Regular TCP connection (e.g., SSH)
 export YASG_SERVER_URL=ws://gateway.example.com:8081/gateway
 export YASG_TARGET_HOST=localhost
 export YASG_TARGET_PORT=22
@@ -90,12 +92,30 @@ export YASG_SECURITY_KEYWORD=my-secret-key
 export YASG_LOG_LEVEL=info
 npm run start:client
 
-# Windows PowerShell
+# Linux/macOS - TLS connection (e.g., HTTPS)
+export YASG_SERVER_URL=ws://gateway.example.com:8081/gateway
+export YASG_TARGET_HOST=internal-api.company.com
+export YASG_TARGET_PORT=443
+export YASG_TARGET_TLS=true
+export YASG_TARGET_REJECT_UNAUTHORIZED=true
+export YASG_SECURITY_KEYWORD=my-secret-key
+npm run start:client
+
+# Windows PowerShell - Regular TCP
 $env:YASG_SERVER_URL="ws://gateway.example.com:8081/gateway"
 $env:YASG_TARGET_HOST="localhost"
 $env:YASG_TARGET_PORT=22
 $env:YASG_SECURITY_KEYWORD="my-secret-key"
 $env:YASG_LOG_LEVEL="info"
+npm run start:client
+
+# Windows PowerShell - TLS connection
+$env:YASG_SERVER_URL="ws://gateway.example.com:8081/gateway"
+$env:YASG_TARGET_HOST="internal-api.company.com"
+$env:YASG_TARGET_PORT=443
+$env:YASG_TARGET_TLS="true"
+$env:YASG_TARGET_REJECT_UNAUTHORIZED="true"
+$env:YASG_SECURITY_KEYWORD="my-secret-key"
 npm run start:client
 ```
 
@@ -221,6 +241,108 @@ spec:
         - configMapRef:
             name: yasg-client-config
 ```
+
+## TLS/SSL Support for Target Connections
+
+YASG supports TLS/SSL encrypted connections to target services, enabling secure tunneling to HTTPS servers and other TLS-enabled services.
+
+### Configuration
+
+Enable TLS for target connections using configuration file or environment variables:
+
+**Configuration File:**
+```json
+{
+  "target": {
+    "host": "internal-api.company.com",
+    "port": 443,
+    "tls": true,
+    "rejectUnauthorized": true
+  }
+}
+```
+
+**Environment Variables:**
+```bash
+export YASG_TARGET_TLS=true
+export YASG_TARGET_REJECT_UNAUTHORIZED=true
+```
+
+### TLS Options
+
+- **`tls`** (`YASG_TARGET_TLS`): Enable/disable TLS connection
+  - `true`: Use TLS/SSL connection (for HTTPS, SMTPS, etc.)
+  - `false`: Use plain TCP connection (default)
+
+- **`rejectUnauthorized`** (`YASG_TARGET_REJECT_UNAUTHORIZED`): Certificate validation
+  - `true`: Reject connections with invalid certificates (default, recommended for production)
+  - `false`: Accept self-signed or invalid certificates (useful for development/testing)
+
+### Use Cases
+
+#### HTTPS API Server
+```bash
+export YASG_TARGET_HOST=internal-api.company.com
+export YASG_TARGET_PORT=443
+export YASG_TARGET_TLS=true
+export YASG_TARGET_REJECT_UNAUTHORIZED=true
+npm run start:client
+```
+
+#### Self-Signed Certificate (Development)
+```bash
+export YASG_TARGET_HOST=dev-server.local
+export YASG_TARGET_PORT=8443
+export YASG_TARGET_TLS=true
+export YASG_TARGET_REJECT_UNAUTHORIZED=false
+npm run start:client
+```
+
+#### SMTPS (Email Server)
+```bash
+export YASG_TARGET_HOST=mail.company.com
+export YASG_TARGET_PORT=465
+export YASG_TARGET_TLS=true
+npm run start:client
+```
+
+### Supported Protocols
+
+With TLS support enabled, YASG can tunnel:
+- ✅ HTTPS (port 443)
+- ✅ SMTPS (port 465)
+- ✅ IMAPS (port 993)
+- ✅ LDAPS (port 636)
+- ✅ Any custom TLS-enabled service
+
+### Certificate Validation
+
+When `rejectUnauthorized` is `true` (default):
+- Server certificate must be valid
+- Certificate must be signed by a trusted CA
+- Hostname must match certificate CN/SAN
+- Certificate must not be expired
+
+When `rejectUnauthorized` is `false`:
+- Self-signed certificates are accepted
+- Expired certificates are accepted
+- Hostname mismatches are ignored
+- ⚠️ **Security Warning**: Only use in development/testing environments
+
+### Troubleshooting TLS Connections
+
+**Connection Refused:**
+- Verify target host and port are correct
+- Ensure target service supports TLS on the specified port
+
+**Certificate Validation Failed:**
+- Check if certificate is self-signed (set `rejectUnauthorized: false` for testing)
+- Verify certificate is not expired
+- Ensure hostname matches certificate
+
+**Timeout:**
+- Increase `YASG_CONN_TIMEOUT` value
+- Check network connectivity to target
 
 ## Security with Keyword Authentication
 
