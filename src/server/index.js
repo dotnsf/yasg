@@ -44,6 +44,9 @@ class GatewayServer {
     );
     
     this.cleanupInterval = null;
+    
+    // Track connections waiting for CONNECT_SUCCESS
+    this.pendingConnections = new Set();
   }
 
   /**
@@ -152,7 +155,13 @@ class GatewayServer {
       this.connectionManager.addConnection(connectionId, socket);
       this.connectionManager.updateState(connectionId, ConnectionState.CONNECTING);
 
-      // Set up data forwarding
+      // Mark connection as pending (waiting for CONNECT_SUCCESS)
+      this.pendingConnections.add(connectionId);
+
+      // Pause data forwarding until CONNECT_SUCCESS is received
+      this.dataForwarder.pause(connectionId);
+
+      // Set up data forwarding (will be paused until CONNECT_SUCCESS)
       this.dataForwarder.forwardTcpToWebSocket(socket, connectionId);
 
       // Send connect request to client (without target info - client will use its own config)
@@ -166,6 +175,9 @@ class GatewayServer {
       // Handle TCP socket close
       socket.on('close', () => {
         this.logger.info('TCP socket closed', { connectionId });
+        
+        // Clean up pending state
+        this.pendingConnections.delete(connectionId);
         
         // Send disconnect message
         const disconnectMsg = createDisconnect(connectionId);
@@ -224,6 +236,13 @@ class GatewayServer {
   handleConnectSuccess(connectionId) {
     this.logger.info('Client connected successfully', { connectionId });
     this.connectionManager.updateState(connectionId, ConnectionState.CONNECTED);
+    
+    // Resume data forwarding now that client is ready
+    if (this.pendingConnections.has(connectionId)) {
+      this.pendingConnections.delete(connectionId);
+      this.dataForwarder.resume(connectionId);
+      this.logger.debug('Data forwarding resumed', { connectionId });
+    }
   }
 
   /**
@@ -232,6 +251,10 @@ class GatewayServer {
   handleConnectError(connectionId, error) {
     this.logger.error('Client connection failed', { connectionId, error });
     this.connectionManager.updateState(connectionId, ConnectionState.FAILED);
+    
+    // Clean up pending state
+    this.pendingConnections.delete(connectionId);
+    
     this.connectionManager.removeConnection(connectionId);
   }
 
@@ -254,6 +277,10 @@ class GatewayServer {
    */
   handleDisconnect(connectionId) {
     this.logger.info('Client requested disconnect', { connectionId });
+    
+    // Clean up pending state
+    this.pendingConnections.delete(connectionId);
+    
     this.connectionManager.removeConnection(connectionId);
   }
 
