@@ -13,6 +13,9 @@
     "timeout": 600000,
     "poolSize": 10
   },
+  "security": {
+    "keyword": ""
+  },
   "logging": {
     "level": "info"
   }

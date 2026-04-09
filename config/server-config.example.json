@@ -11,6 +11,9 @@
     "timeout": 600000,
     "maxConnections": 100
   },
+  "security": {
+    "keyword": ""
+  },
   "logging": {
     "level": "info"
   }

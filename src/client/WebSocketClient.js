@@ -6,9 +6,10 @@ const { sleep } = require('../shared/utils');
  * WebSocket Client for gateway communication
  */
 class WebSocketClient {
-  constructor(url, reconnect, reconnectInterval, maxReconnectAttempts, logger) {
+  constructor(url, reconnect, reconnectInterval, maxReconnectAttempts, logger, keyword = '') {
     this.ws = null;
-    this.url = url;
+    this.baseUrl = url;
+    this.keyword = keyword;
     this.reconnect = reconnect;
     this.reconnectInterval = reconnectInterval;
     this.maxReconnectAttempts = maxReconnectAttempts;
@@ -19,6 +20,17 @@ class WebSocketClient {
     this.onMessageCallback = null;
     this.onConnectedCallback = null;
     this.onDisconnectedCallback = null;
+  }
+
+  /**
+   * Get the full URL with keyword parameter if configured
+   */
+  getUrl() {
+    if (this.keyword) {
+      const separator = this.baseUrl.includes('?') ? '&' : '?';
+      return `${this.baseUrl}${separator}keyword=${encodeURIComponent(this.keyword)}`;
+    }
+    return this.baseUrl;
   }
 
   /**
@@ -111,9 +123,10 @@ class WebSocketClient {
    */
   doConnect() {
     return new Promise((resolve, reject) => {
-      this.logger.info('Connecting to gateway server', { url: this.url });
+      const url = this.getUrl();
+      this.logger.info('Connecting to gateway server', { url: this.baseUrl });
 
-      this.ws = new WebSocket(this.url);
+      this.ws = new WebSocket(url);
 
       this.ws.on('open', () => {
         this.logger.info('Connected to gateway server');

@@ -24,6 +24,9 @@ The configuration is loaded in the following order (highest priority first):
 - `YASG_CONN_TIMEOUT` - Connection timeout in milliseconds (default: `600000` = 10 minutes)
 - `YASG_CONN_MAX` - Maximum number of concurrent connections (default: `100`)
 
+### Security Configuration
+- `YASG_SECURITY_KEYWORD` - Authentication keyword for client connections (default: empty = no authentication)
+
 ### Logging Configuration
 - `YASG_LOG_LEVEL` - Logging level: `debug`, `info`, `warn`, `error` (default: `info`)
 
@@ -43,6 +46,9 @@ The configuration is loaded in the following order (highest priority first):
 - `YASG_CONN_TIMEOUT` - Connection timeout in milliseconds (default: `600000` = 10 minutes)
 - `YASG_CONN_POOL_SIZE` - Connection pool size (default: `10`)
 
+### Security Configuration
+- `YASG_SECURITY_KEYWORD` - Authentication keyword for server connection (default: empty = no authentication)
+
 ### Logging Configuration
 - `YASG_LOG_LEVEL` - Logging level: `debug`, `info`, `warn`, `error` (default: `info`)
 
@@ -54,18 +60,21 @@ The configuration is loaded in the following order (highest priority first):
 # Linux/macOS
 export YASG_TCP_PORT=9090
 export YASG_WS_PORT=9091
+export YASG_SECURITY_KEYWORD=my-secret-key
 export YASG_LOG_LEVEL=debug
 npm run start:server
 
 # Windows PowerShell
 $env:YASG_TCP_PORT=9090
 $env:YASG_WS_PORT=9091
+$env:YASG_SECURITY_KEYWORD="my-secret-key"
 $env:YASG_LOG_LEVEL="debug"
 npm run start:server
 
 # Windows Command Prompt
 set YASG_TCP_PORT=9090
 set YASG_WS_PORT=9091
+set YASG_SECURITY_KEYWORD=my-secret-key
 set YASG_LOG_LEVEL=debug
 npm run start:server
 ```
@@ -77,6 +86,7 @@ npm run start:server
 export YASG_SERVER_URL=ws://gateway.example.com:8081/gateway
 export YASG_TARGET_HOST=localhost
 export YASG_TARGET_PORT=22
+export YASG_SECURITY_KEYWORD=my-secret-key
 export YASG_LOG_LEVEL=info
 npm run start:client
 
@@ -84,6 +94,7 @@ npm run start:client
 $env:YASG_SERVER_URL="ws://gateway.example.com:8081/gateway"
 $env:YASG_TARGET_HOST="localhost"
 $env:YASG_TARGET_PORT=22
+$env:YASG_SECURITY_KEYWORD="my-secret-key"
 $env:YASG_LOG_LEVEL="info"
 npm run start:client
 ```
@@ -211,13 +222,52 @@ spec:
             name: yasg-client-config
 ```
 
+## Security with Keyword Authentication
+
+YASG supports optional keyword-based authentication to prevent unauthorized clients from connecting to your gateway server.
+
+### How It Works
+
+1. **Server Configuration**: Set a keyword on the server using `YASG_SECURITY_KEYWORD` or in the config file
+2. **Client Configuration**: Set the same keyword on the client using `YASG_SECURITY_KEYWORD` or in the config file
+3. **Authentication**: When the client connects, it sends the keyword as a query parameter
+4. **Validation**: The server validates the keyword and rejects connections with mismatched or missing keywords
+
+### Example with Keyword Authentication
+
+```bash
+# Server
+export YASG_SECURITY_KEYWORD=my-super-secret-key-12345
+npm run start:server
+
+# Client
+export YASG_SECURITY_KEYWORD=my-super-secret-key-12345
+npm run start:client
+```
+
+### Behavior
+
+- **No keyword set on server**: All client connections are accepted (backward compatible)
+- **Keyword set on server, no keyword from client**: Connection rejected with "keyword not matched."
+- **Keyword set on server, wrong keyword from client**: Connection rejected with "keyword not matched."
+- **Keyword set on server, correct keyword from client**: Connection accepted
+
+### Security Recommendations
+
+1. **Use Strong Keywords**: Use long, random strings (e.g., generated with `openssl rand -hex 32`)
+2. **Rotate Keywords Regularly**: Change keywords periodically for better security
+3. **Use Environment Variables**: Never commit keywords to version control
+4. **Consider TLS**: For production, use WSS (WebSocket Secure) with TLS encryption
+5. **Combine with Firewall Rules**: Use keyword authentication in addition to network-level security
+
 ## Best Practices
 
 1. **Use Config Files for Development**: Config files are easier to manage during development
 2. **Use Environment Variables for Production**: Environment variables are more secure and flexible for production deployments
-3. **Never Commit Secrets**: Don't commit sensitive values in config files; use environment variables or secret management systems
+3. **Never Commit Secrets**: Don't commit sensitive values (especially keywords) in config files; use environment variables or secret management systems
 4. **Document Your Variables**: Keep track of which environment variables your deployment uses
 5. **Use Defaults Wisely**: Set sensible defaults that work for most use cases
+6. **Enable Keyword Authentication**: Always use keyword authentication in production environments
 
 ## Troubleshooting
 

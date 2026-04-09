@@ -27,7 +27,8 @@ class GatewayClient {
       config.server.reconnect,
       config.server.reconnectInterval,
       config.server.maxReconnectAttempts,
-      this.logger
+      this.logger,
+      config.security.keyword
     );
     
     this.tcpConnector = new TcpConnector(
@@ -257,6 +258,9 @@ const defaultConfig = {
     timeout: 600000, // 10 minutes for long-lived connections like SSH
     poolSize: 10
   },
+  security: {
+    keyword: '' // Optional authentication keyword
+  },
   logging: {
     level: 'info'
   }
@@ -323,6 +327,12 @@ function loadConfigFromEnv() {
     envConfig.connection.poolSize = parseInt(process.env.YASG_CONN_POOL_SIZE, 10);
   }
 
+  // Security configuration
+  if (process.env.YASG_SECURITY_KEYWORD) {
+    envConfig.security = envConfig.security || {};
+    envConfig.security.keyword = process.env.YASG_SECURITY_KEYWORD;
+  }
+
   // Logging configuration
   if (process.env.YASG_LOG_LEVEL) {
     envConfig.logging = envConfig.logging || {};
@@ -351,6 +361,11 @@ function mergeConfigs(defaultConfig, fileConfig, envConfig) {
       ...defaultConfig.connection,
       ...(fileConfig.connection || {}),
       ...(envConfig.connection || {})
+    },
+    security: {
+      ...defaultConfig.security,
+      ...(fileConfig.security || {}),
+      ...(envConfig.security || {})
     },
     logging: {
       ...defaultConfig.logging,

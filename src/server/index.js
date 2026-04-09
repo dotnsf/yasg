@@ -29,7 +29,8 @@ class GatewayServer {
     this.wsServer = new WebSocketServer(
       config.websocket.port,
       config.websocket.path,
-      this.logger
+      this.logger,
+      config.security.keyword
     );
     
     this.connectionManager = new ConnectionManager(
@@ -293,6 +294,9 @@ const defaultConfig = {
     timeout: 600000, // 10 minutes for long-lived connections like SSH
     maxConnections: 100
   },
+  security: {
+    keyword: '' // Optional authentication keyword
+  },
   logging: {
     level: 'info'
   }
@@ -351,6 +355,12 @@ function loadConfigFromEnv() {
     envConfig.connection.maxConnections = parseInt(process.env.YASG_CONN_MAX, 10);
   }
 
+  // Security configuration
+  if (process.env.YASG_SECURITY_KEYWORD) {
+    envConfig.security = envConfig.security || {};
+    envConfig.security.keyword = process.env.YASG_SECURITY_KEYWORD;
+  }
+
   // Logging configuration
   if (process.env.YASG_LOG_LEVEL) {
     envConfig.logging = envConfig.logging || {};
@@ -379,6 +389,11 @@ function mergeConfigs(defaultConfig, fileConfig, envConfig) {
       ...defaultConfig.connection,
       ...(fileConfig.connection || {}),
       ...(envConfig.connection || {})
+    },
+    security: {
+      ...defaultConfig.security,
+      ...(fileConfig.security || {}),
+      ...(envConfig.security || {})
     },
     logging: {
       ...defaultConfig.logging,

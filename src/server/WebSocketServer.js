@@ -5,12 +5,13 @@ const { serializeMessage, deserializeMessage, validateMessage } = require('../sh
  * WebSocket Server for gateway communication
  */
 class WebSocketServer {
-  constructor(port, path, logger) {
+  constructor(port, path, logger, keyword = '') {
     this.wss = null;
     this.client = null;
     this.port = port;
     this.path = path;
     this.logger = logger;
+    this.keyword = keyword;
     this.onMessageCallback = null;
     this.onClientConnectedCallback = null;
     this.onClientDisconnectedCallback = null;
@@ -28,8 +29,8 @@ class WebSocketServer {
           path: this.path
         });
 
-        this.wss.on('connection', (ws) => {
-          this.handleConnection(ws);
+        this.wss.on('connection', (ws, req) => {
+          this.handleConnection(ws, req);
         });
 
         this.wss.on('error', (error) => {
@@ -126,7 +127,27 @@ class WebSocketServer {
   /**
    * Handle new WebSocket connection
    */
-  handleConnection(ws) {
+  handleConnection(ws, req) {
+    // Check keyword authentication if configured
+    if (this.keyword) {
+      const url = new URL(req.url, `ws://${req.headers.host}`);
+      const clientKeyword = url.searchParams.get('keyword');
+      
+      if (!clientKeyword) {
+        this.logger.warn('Client connection rejected: keyword not provided');
+        ws.close(1008, 'keyword not matched.');
+        return;
+      }
+      
+      if (clientKeyword !== this.keyword) {
+        this.logger.warn('Client connection rejected: keyword not matched');
+        ws.close(1008, 'keyword not matched.');
+        return;
+      }
+      
+      this.logger.info('Client keyword authenticated successfully');
+    }
+
     // Only allow one client connection
     if (this.client) {
       this.logger.warn('Client already connected, rejecting new connection');
