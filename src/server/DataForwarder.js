@@ -18,6 +18,11 @@ class DataForwarder {
     socket.on('data', (data) => {
       if (this.pausedConnections.has(connectionId)) {
         this.logger.debug('Connection paused, buffering data', { connectionId });
+        //. バッファに保存（破棄しない）
+        const buffer = this.pendingDataBuffers.get(connectionId);
+        if( buffer ){
+          buffer.push(data);
+        }
         return;
       }
 
