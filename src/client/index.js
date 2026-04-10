@@ -47,6 +47,9 @@ class GatewayClient {
     );
     
     this.cleanupInterval = null;
+    
+    // Buffer for data received before connection is established
+    this.pendingDataBuffers = new Map();
   }
 
   /**
@@ -153,6 +156,9 @@ class GatewayClient {
     // Use configured target if not specified in message
     const targetConfig = target || this.config.target;
 
+    // Initialize buffer for this connection
+    this.pendingDataBuffers.set(connectionId, []);
+
     try {
       // Connect to target service
       const socket = await this.tcpConnector.connect(targetConfig);
@@ -160,12 +166,30 @@ class GatewayClient {
       // Add to connection pool
       this.connectionPool.addConnection(connectionId, socket);
       
+      // Process any buffered data that arrived during connection establishment
+      const bufferedData = this.pendingDataBuffers.get(connectionId);
+      if (bufferedData && bufferedData.length > 0) {
+        this.logger.info('Processing buffered data', {
+          connectionId,
+          bufferedMessages: bufferedData.length
+        });
+        for (const message of bufferedData) {
+          this.dataForwarder.forwardWebSocketToTcp(message, socket);
+        }
+      }
+      
+      // Remove buffer as connection is now established
+      this.pendingDataBuffers.delete(connectionId);
+      
       // Set up data forwarding
       this.dataForwarder.forwardTcpToWebSocket(socket, connectionId);
       
       // Handle socket close
       socket.on('close', () => {
         this.logger.info('Target socket closed', { connectionId });
+        
+        // Clean up buffer if exists
+        this.pendingDataBuffers.delete(connectionId);
         
         // Send disconnect message
         const disconnectMsg = createDisconnect(connectionId);
@@ -183,9 +207,12 @@ class GatewayClient {
     } catch (error) {
       this.logger.error('Failed to connect to target', { connectionId, error });
       
+      // Clean up buffer on error
+      this.pendingDataBuffers.delete(connectionId);
+      
       // Send error message
       const errorMsg = createConnectError(
-        connectionId, 
+        connectionId,
         error.message || 'Connection failed'
       );
       this.wsClient.sendMessage(errorMsg);
@@ -200,9 +227,17 @@ class GatewayClient {
     if (socket) {
       this.dataForwarder.forwardWebSocketToTcp(message, socket);
     } else {
-      this.logger.warn('Connection not found for data message', { 
-        connectionId: message.connectionId 
-      });
+      // Buffer data if connection is being established
+      if (this.pendingDataBuffers.has(message.connectionId)) {
+        this.logger.debug('Buffering data for pending connection', {
+          connectionId: message.connectionId
+        });
+        this.pendingDataBuffers.get(message.connectionId).push(message);
+      } else {
+        this.logger.warn('Connection not found for data message', {
+          connectionId: message.connectionId
+        });
+      }
     }
   }
 
