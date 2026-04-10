@@ -9,6 +9,7 @@ class DataForwarder {
     this.wsServer = wsServer;
     this.logger = logger;
     this.pausedConnections = new Set();
+    this.pendingDataBuffers = new Map();
   }
 
   /**
@@ -18,10 +19,15 @@ class DataForwarder {
     socket.on('data', (data) => {
       if (this.pausedConnections.has(connectionId)) {
         this.logger.debug('Connection paused, buffering data', { connectionId });
-        //. バッファに保存（破棄しない）
+        // バッファに保存（破棄しない）
         const buffer = this.pendingDataBuffers.get(connectionId);
-        if( buffer ){
+        if (buffer) {
           buffer.push(data);
+          this.logger.debug('Data buffered', {
+            connectionId,
+            bytes: data.length,
+            bufferSize: buffer.length
+          });
         }
         return;
       }
@@ -30,9 +36,9 @@ class DataForwarder {
         const message = createDataMessage(connectionId, data);
         this.wsServer.sendMessage(message);
         
-        this.logger.debug('Data forwarded TCP->WS', { 
-          connectionId, 
-          bytes: data.length 
+        this.logger.debug('Data forwarded TCP->WS', {
+          connectionId,
+          bytes: data.length
         });
       } catch (error) {
         this.logger.error('Error forwarding TCP->WS', { connectionId, error });
@@ -99,6 +105,7 @@ class DataForwarder {
    */
   pause(connectionId) {
     this.pausedConnections.add(connectionId);
+    this.pendingDataBuffers.set(connectionId, []);
     this.logger.debug('Connection paused', { connectionId });
   }
 
@@ -107,6 +114,30 @@ class DataForwarder {
    */
   resume(connectionId) {
     this.pausedConnections.delete(connectionId);
+    
+    // バッファ内のデータを送信
+    const buffered = this.pendingDataBuffers.get(connectionId);
+    if (buffered && buffered.length > 0) {
+      this.logger.debug('Sending buffered data', {
+        connectionId,
+        bufferCount: buffered.length
+      });
+      
+      for (const data of buffered) {
+        try {
+          const message = createDataMessage(connectionId, data);
+          this.wsServer.sendMessage(message);
+          this.logger.debug('Buffered data sent', {
+            connectionId,
+            bytes: data.length
+          });
+        } catch (error) {
+          this.logger.error('Error sending buffered data', { connectionId, error });
+        }
+      }
+    }
+    
+    this.pendingDataBuffers.delete(connectionId);
     this.logger.debug('Connection resumed', { connectionId });
   }
 
@@ -122,6 +153,7 @@ class DataForwarder {
    */
   clearPaused() {
     this.pausedConnections.clear();
+    this.pendingDataBuffers.clear();
   }
 }
 
