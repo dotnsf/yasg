@@ -447,11 +447,11 @@ async function main() {
   const envConfig = loadConfigFromEnv();
 
   // デバッグ出力を追加
-  console.log('Environment variables detected:');
-  console.log('  YASG_TCP_PORT:', process.env.YASG_TCP_PORT);
-  console.log('  YASG_WS_PORT:', process.env.YASG_WS_PORT);
-  console.log('  YASG_LOG_LEVEL:', process.env.YASG_LOG_LEVEL);
-  console.log('Parsed envConfig:', JSON.stringify(envConfig, null, 2));
+  //console.log('Environment variables detected:');
+  //console.log('  YASG_TCP_PORT:', process.env.YASG_TCP_PORT);
+  //console.log('  YASG_WS_PORT:', process.env.YASG_WS_PORT);
+  //console.log('  YASG_LOG_LEVEL:', process.env.YASG_LOG_LEVEL);
+  //console.log('Parsed envConfig:', JSON.stringify(envConfig, null, 2));
   
   // Merge configurations (env takes precedence over file, file over default)
   const config = mergeConfigs(defaultConfig, fileConfig, envConfig);
