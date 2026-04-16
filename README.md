@@ -17,6 +17,11 @@ Internet Client → Gateway Server (Cloud) ←WebSocket→ Gateway Client (On-Pr
 3. Data is tunneled through the WebSocket connection to the on-premise service
 4. No inbound firewall rules required!
 
+## Restrictions(What YASG can't do)
+
+1. YASG can't handle **Redirect** features. 
+  - You can browse on-premise web server(HTTP/HTTPS) with YASG. But if server need authentication and ask for redict to other on-premise authentication server, you will just see "can not resolve host" error.
+
 ## ✨ Features
 
 ### Current (PoC)
