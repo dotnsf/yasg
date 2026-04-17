@@ -214,6 +214,22 @@ Create `config/client-config.json`:
 }
 ```
 
+## Running on Docker
+
+- YASG Server
+  - `$ docker pull dotnsf/yasg-server`
+
+  - `$ docker run -d -e YASG_TCP_PORT=90 -e YASG_WS_PORT=9000 -e YASG_SECURITY_KEYWORD=keyword -e YASG_LOG_LEVEL=debug -p 90:90 -p 9000:9000 dotnsf/yasg-server`
+
+- YASG Client
+  - `$ docker pull dotnsf/yasg-client`
+
+  - `$ docker run -d -e YASG_SERVER_URL=ws://yasg-server:9000/gateway -e YASG_TARGET_HOST=192.168.1.100 -e YASG_TARGET_PORT=22 -e YASG_SECURITY_KEYWORD=keyword -e YASG_LOG_LEVEL=debug -p 9000:9000 dotnsf/yasg-client`
+    - `> ssh user@yasg-server -p 90`
+
+  - `$ docker run -d -e YASG_SERVER_URL=ws://yasg-server:9000/gateway -e YASG_TARGET_HOST=private.test.local -e YASG_TARGET_PORT=443 -e YASG_SECURITY_KEYWORD=keyword -e YASG_LOG_LEVEL=debug -p 9000:9000 dotnsf/yasg-client`
+    - `> curl -k https://yasg-server:90/`
+
 ## 📖 Documentation
 
 - [Technical Specification](TECHNICAL_SPEC.md) - Detailed technical design
